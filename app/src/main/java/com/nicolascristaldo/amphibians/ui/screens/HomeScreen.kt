@@ -2,8 +2,10 @@ package com.nicolascristaldo.amphibians.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -14,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,6 +26,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -60,14 +64,14 @@ fun AmphibianListScreen(
     LazyColumn(
         contentPadding = contentPadding,
         modifier = Modifier
-    ) {
-        items(items = amphibians, key = { amphibian -> amphibian.name }) { amphibian ->
-            AmphibianCard(
-                amphibian = amphibian,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(dimensionResource(id = R.dimen.padding_small))
+            .padding(
+                top = 60.dp,
+                start = dimensionResource(id = R.dimen.padding_medium),
+                end = dimensionResource(id = R.dimen.padding_medium)
             )
+    ) {
+        items(items = amphibians) { amphibian ->
+            AmphibianCard(amphibian = amphibian)
         }
     }
 }
@@ -78,41 +82,58 @@ fun AmphibianCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.height(dimensionResource(id = R.dimen.card_size)),
         elevation = CardDefaults.cardElevation(
             defaultElevation = dimensionResource(id = R.dimen.min_size)
-        )
+        ),
+        modifier = Modifier
+            .padding(bottom = dimensionResource(id = R.dimen.padding_medium))
     ) {
         Column(
-            modifier = Modifier
+            modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_small))
         ) {
 
             Text(
                 text = "${amphibian.name} (${amphibian.type})",
-                modifier = Modifier.padding(
-                    vertical = dimensionResource(id = R.dimen.min_size),
-                    horizontal = dimensionResource(id = R.dimen.padding_small)
-                )
-            )
-            AsyncImage(
-                model = ImageRequest.Builder(context = LocalContext.current)
-                    .data(amphibian.imgSrc)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                error = painterResource(R.drawable.ic_broken_image),
-                placeholder = painterResource(id = R.drawable.ic_loading),
+                style = MaterialTheme.typography.displayMedium,
+                textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacer_size)))
+            AmphibianImage(
+                amphibian = amphibian,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .size(dimensionResource(id = R.dimen.image_size))
+            )
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacer_size)))
             Text(
                 text = amphibian.description,
-                modifier = Modifier.padding(
-                    vertical = dimensionResource(id = R.dimen.min_size),
-                    horizontal = dimensionResource(id = R.dimen.padding_small)
-                )
+                style = MaterialTheme.typography.displaySmall,
+                modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_small))
             )
         }
+    }
+}
+
+@Composable
+fun AmphibianImage(
+    amphibian: Amphibian,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+    ) {
+        AsyncImage(
+            model = ImageRequest.Builder(context = LocalContext.current)
+                .data(amphibian.imgSrc)
+                .crossfade(true)
+                .build(),
+            contentDescription = null,
+            contentScale = ContentScale.Fit,
+            error = painterResource(R.drawable.ic_broken_image),
+            placeholder = painterResource(id = R.drawable.ic_loading),
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 
@@ -143,20 +164,4 @@ fun LoadingScreen(modifier: Modifier = Modifier) {
         painter = painterResource(R.drawable.ic_loading),
         contentDescription = stringResource(R.string.loading)
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PhotosGridScreenPreview() {
-    AmphibiansTheme {
-        val mockData = List(5) {
-            Amphibian(
-                name ="sapo indio",
-                type ="frog",
-                description = "fufbewu efbjfbkj febfjebgkje efj ejf e jr gjlwr gjw gjlwr gjrl gjl ",
-                imgSrc = "https://developer.android.com/codelabs/basic-android-kotlin-compose-amphibians-app/img/great-basin-spadefoot.png"
-            )
-        }
-        AmphibianListScreen(mockData)
-    }
 }
